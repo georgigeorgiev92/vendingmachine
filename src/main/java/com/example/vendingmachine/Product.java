@@ -8,9 +8,11 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "id", nullable = false)
     private Long id;
-
+    @Column(name = "name")
     private String name;
+    @Column(name = "price")
     private int price;
+    @Column(name = "quantity")
     private int quantity;
 
     public Long getId() {
@@ -29,6 +31,14 @@ public class Product {
 
     public Product() {
 
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setPrice(int price) {
+        this.price = price;
     }
 
     public String getName() {

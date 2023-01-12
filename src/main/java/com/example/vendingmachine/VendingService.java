@@ -1,9 +1,11 @@
 package com.example.vendingmachine;
 
+import org.springframework.stereotype.Service;
+
 import java.util.Optional;
 
 import static com.example.vendingmachine.Coin.*;
-
+@Service
 public class VendingService {
     boolean coin_accepted = false;
 
