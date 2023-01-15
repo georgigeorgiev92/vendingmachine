@@ -11,10 +11,42 @@ public class Product {
     @Column(name = "product_id", nullable = false)
     private Long id;
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public void setPrice(int price) {
+        this.price = price;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    public VendingMachine getVendingmachine() {
+        return vendingmachine;
+    }
+
+    public void setVendingmachine(VendingMachine vendingmachine) {
+        this.vendingmachine = vendingmachine;
+    }
+
     @Column(name = "product_name")
     public String name;
     @Column(name = "product_cost")
-    public int cost;
+    public int price;
     @Column(name = "product_quantity")
     public int quantity;
 
@@ -23,9 +55,9 @@ public class Product {
     @ManyToOne
     private VendingMachine vendingmachine;
 
-    public Product(VendingMachine vendingMachine, String name, int cost, int quantity) {
+    public Product(VendingMachine vendingMachine, String name, int price, int quantity) {
         this.name = name;
-        this.cost = cost;
+        this.price = price;
         this.vendingmachine = vendingMachine;
         this.quantity = quantity;
     }

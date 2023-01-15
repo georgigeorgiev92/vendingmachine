@@ -16,21 +16,26 @@ public class Coin {
     public int value;
 
 
-    @Column(name = "coin_amount")
-    public int amount;
 
     @JsonIgnore
-    public static final int[] POSSIBLE_VALUES = {200, 100, 50, 20, 10, 5, 2, 1};
+    public static final int[] POSSIBLE_VALUES = {10, 20, 50, 100, 200};
 
     @JsonIgnore
     @ManyToOne
     private VendingMachine vendingmachine;
 
-    public Coin(VendingMachine machine, int value, int amount) {
+    public Coin(VendingMachine vendingmachine, int value) {
+        this.vendingmachine = vendingmachine;
+        this.value = value;
     }
 
-    public Coin() {
 
+    public Coin(int value){
+        this.value = value;
+    }
+
+    public Coin(){
+        //jpa only
     }
 
 }

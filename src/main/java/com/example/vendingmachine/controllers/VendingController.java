@@ -7,6 +7,7 @@ import com.example.vendingmachine.repos.CoinRepo;
 import com.example.vendingmachine.repos.ProductRepo;
 import com.example.vendingmachine.repos.VendingMachineRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -63,12 +64,12 @@ public class VendingController {
 
     }
     @PostMapping("/{vendingMachine}/products")//@RequestMapping(method = RequestMethod.POST)
-    ResponseEntity<?> addProduct(@PathVariable String vendingMachine, @RequestBody Product input) {
+    ResponseEntity<?> addNewProduct(@PathVariable String vendingMachine, @RequestBody Product input) {
 
         return this.vendingRepo
                 .findByName(vendingMachine)
                 .map(machine -> {
-                    Product result = productRepo.save(new Product(machine, input.name, input.cost, input.quantity));
+                    Product result = productRepo.save(new Product(machine, input.name, input.price, input.quantity));
 
                     URI location = ServletUriComponentsBuilder
                             .fromCurrentRequest().path("/{id}")
@@ -78,6 +79,31 @@ public class VendingController {
                 })
                 .orElse(ResponseEntity.noContent().build());
 
+    }
+
+    @PutMapping("/{vendingMachine}/products/{id}")
+    public ResponseEntity<Product> updateProductInventory(@PathVariable("id") long id, @RequestBody Product product) {
+        Optional<Product> tutorialData = productRepo.findById(id);
+
+        if (tutorialData.isPresent()&& product.quantity<10)  {
+            Product _prod = tutorialData.get();
+            _prod.setName(product.getName());
+            _prod.setPrice(product.getPrice());
+            _prod.setQuantity(product.getQuantity() + 1);
+            return new ResponseEntity<>(productRepo.save(_prod), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @DeleteMapping("/{vendingMachine}/products/{id}")
+    public ResponseEntity<HttpStatus> deleteProduct(@PathVariable("id") long id) {
+        try {
+            productRepo.deleteById(id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
     @GetMapping("/{vendingMachine}/products/{productId}")
     //@RequestMapping(method = RequestMethod.GET, value = "/{vendingMachine}/products/{productId}")
@@ -90,11 +116,11 @@ public class VendingController {
             this.productRepo.findByVendingmachine(vendingMachine)
                     .forEach(product -> {
                         if (Objects.equals(product.getId(), productId)
-                                && product.cost <= machine.currentAmount
+                                && product.price <= machine.currentAmount
                                 && product.quantity > 0) {
                             product.quantity--;
                             this.productRepo.saveAndFlush(product);
-                            machine.currentAmount -= product.cost;
+                            machine.currentAmount -= product.price;
                             product.quantity = 1;
                             soldProduct[0] = product;
                         }
@@ -103,14 +129,10 @@ public class VendingController {
             this.vendingRepo.saveAndFlush(machine);
             return machine;
         });
-
         return soldProduct[0];
     }
 
-    @GetMapping("/{vendingMachine}/coins")
-    Collection<Coin> getCoins(@PathVariable String machineId) {
-        return this.coinRepo.findByVendingmachine(machineId);
-    }
+
 
     //@RequestMapping(method = RequestMethod.POST)
     @PostMapping ("/{vendingMachine}/coins")
@@ -119,23 +141,16 @@ public class VendingController {
         return this.vendingRepo
                 .findByName(machineId)
                 .map(machine -> {
-                    final boolean[] coinFound = {false};
+                     boolean coinFound = false;
 
-                    // Increase the amount of coins if the machine already has seen that coin
-                    this.coinRepo.findByVendingmachine(machineId).forEach(machineCoin -> {
-                        if (coin.value == machineCoin.value) {
-                            coin.amount++;
-                            coinFound[0] = true;
-                        }
-                    });
 
                     // Else add the coin to the repository
-                    if (!coinFound[0] && IntStream.of(coin.POSSIBLE_VALUES).anyMatch(x -> x == coin.value)) {
-                        this.coinRepo.saveAndFlush(new Coin(machine, coin.value, 1));
-                        coinFound[0] = true;
+                    if (!coinFound && IntStream.of(coin.POSSIBLE_VALUES).anyMatch(x -> x == coin.value)) {
+                        this.coinRepo.saveAndFlush(new Coin(machine, coin.value));
+                        coinFound = true;
                     }
 
-                    if (coinFound[0]) {
+                    if (coinFound) {
                         machine.currentAmount += coin.value;
                     }
 
@@ -146,9 +161,9 @@ public class VendingController {
     }
 
    // @RequestMapping(method = RequestMethod.GET, value = "/refund")
-    @PostMapping ("/{vendingMachine}/coins/refund")
+    @GetMapping("/{vendingMachine}/coin/reset")
 
-    List<Coin> refundCoins(@PathVariable String machineId) {
+    Coin reset(@PathVariable String machineId) {
 
         final int[] refundTotal = new int[1];
 
@@ -157,20 +172,18 @@ public class VendingController {
             return refundTotal[0];
         });
 
-        List<Coin> refundCoins = new ArrayList<>();
+        Coin refundCoin = new Coin();
 
         for (int value : Coin.POSSIBLE_VALUES) {
             this.coinRepo.findByVendingmachine(machineId).forEach(coin -> {
-                if (value == coin.value && coin.amount > 0 && coin.value <= refundTotal[0]) {
-                    double max_coins = Math.min(Math.floor(refundTotal[0] / coin.value), coin.amount);
-                    coin.amount -= max_coins;
+                if (value == coin.value && coin.value <= refundTotal[0]) {
                     this.coinRepo.saveAndFlush(coin);
-                    //refundCoins.add(new Coin(coin.value, (int) max_coins));
-                    refundTotal[0] -= (int) max_coins * coin.value;
+                  //  refundCoin.add(new Coin(coin.value, (int) max_coins));
+                  //  refundTotal[0] -= (int) max_coins * coin.value;
                 }
             });
         }
 
-        return refundCoins;
+        return refundCoin;
     }
 }
