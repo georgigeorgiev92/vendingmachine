@@ -6,27 +6,38 @@ import jakarta.persistence.*;
 @Entity
 public class Product {
 
-    @JsonIgnore
-    @ManyToOne
-    private VendingMachine vendingMachine;
-
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "product_id", nullable = false)
     private Long id;
 
+    @Column(name = "product_name")
+    public String name;
+    @Column(name = "product_cost")
+    public int cost;
+    @Column(name = "product_quantity")
+    public int quantity;
+
+
     @ManyToOne
-    @JoinColumn(name = "machine_id")
+    @JsonIgnore
+    // @JoinColumn(name = "machine_id")
     private VendingMachine vendingmachine;
 
+    public Product(VendingMachine machine, String name, int i, int i1) {
+    }
+
+    public Product() {
+
+    }
 
 
     public VendingMachine getVendingMachineMachine() {
-        return vendingMachine;
+        return vendingmachine;
     }
 
     public void setVendingMachineMachine(VendingMachine vendingMachine) {
-        this.vendingMachine = vendingMachine;
+        this.vendingmachine = vendingMachine;
     }
 
     public Long getId() {

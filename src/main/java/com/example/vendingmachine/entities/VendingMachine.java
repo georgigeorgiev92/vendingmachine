@@ -11,16 +11,14 @@ import java.util.Set;
 public class VendingMachine {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    @Column(name = "id", nullable = false)
+    @Column(name = "machine_id", nullable = false)
     private Long id;
 
-    public Long getId() {
-        return id;
-    }
+    @Column(name = "machine_name")
+    public String name;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    @Column(name = "machine_amount")
+    public int currentAmount;
 
     @OneToMany(mappedBy = "vendingmachine")
     private Set<Product> productList = new HashSet<>();
@@ -28,9 +26,6 @@ public class VendingMachine {
     @OneToMany(mappedBy = "vendingmachine")
     private Set<Coin> coinsList = new HashSet<>();
 
-    @Column
-    public String name;
-    public int currentAmount;
     public Long getID() {
         return id;
     }

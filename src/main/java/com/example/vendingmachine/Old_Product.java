@@ -50,7 +50,7 @@ public class Product {
         return price;
     }
 
-    public int getQuantity() {
+    public int getQuantity() {POST
          return quantity;
     }
 
