@@ -1,3 +1,4 @@
+/*
 package com.example.vendingmachine;
 
 import jakarta.persistence.*;
@@ -57,3 +58,4 @@ public class Product {
         this.quantity = quantity;
     }
 }
+*/

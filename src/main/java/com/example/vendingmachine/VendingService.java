@@ -1,3 +1,4 @@
+/*
 package com.example.vendingmachine;
 
 import org.springframework.stereotype.Service;
@@ -37,3 +38,4 @@ public class VendingService {
         // reset the insertedCoins to 0
     }
 }
+*/

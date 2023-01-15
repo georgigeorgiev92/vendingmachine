@@ -1,3 +1,4 @@
+/*
 package com.example.vendingmachine;
 
 public enum Coin {
@@ -18,3 +19,4 @@ public enum Coin {
     }
 }
 
+*/

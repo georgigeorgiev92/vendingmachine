@@ -1,4 +1,6 @@
+/*
 package com.example.vendingmachine;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,7 @@ public class VendingController {
     private final ProductRepository repository;
 
     private InventoryService inventoryService;
+
     public VendingController(ProductRepository repository) {
         this.repository = repository;
     }
@@ -23,18 +26,9 @@ public class VendingController {
     List<Product> all() {
         return repository.findAll();
     }
-    /*
-    @PostMapping("/products/add")
-    List<Product> addProduct() {
-        return repository.findAll();
-    }
-
-    @PostMapping("/products/update")
-    List<Product> updateProduct() {
-        return repository.findAll();
-    }*/
 
 
+*/
 /*
 
     @PostMapping("/products/add")
@@ -47,7 +41,8 @@ public class VendingController {
             return errorResponse(ex);
         }
     }
-*/
+*//*
+
 
     @PostMapping("/products")
     public ResponseEntity<Product> addProduct(@RequestBody Product product) {
@@ -68,7 +63,7 @@ public class VendingController {
             Product _prod = tutorialData.get();
             _prod.setName(product.getName());
             _prod.setPrice(product.getPrice());
-            _prod.setQuantity(product.getQuantity());
+            _prod.setQuantity(product.getQuantity() + 1);
             return new ResponseEntity<>(repository.save(_prod), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -84,6 +79,7 @@ public class VendingController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
     public ResponseEntity correctResponse(Object value, Object error, int statusCode, String message, HttpStatus status) {
         HashMap<Object, Object> response = new HashMap<>();
         response.put("value", value);
@@ -92,6 +88,7 @@ public class VendingController {
         response.put("message", message);
         return ResponseEntity.status(status).body(response);
     }
+
     public ResponseEntity errorResponse(Exception ex) {
         HashMap<Object, Object> response = new HashMap<>();
         response.put("timestamp", new Date());
@@ -101,3 +98,4 @@ public class VendingController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 }
+*/
