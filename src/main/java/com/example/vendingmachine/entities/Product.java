@@ -19,27 +19,29 @@ public class Product {
     public int quantity;
 
 
-    @ManyToOne
     @JsonIgnore
-    // @JoinColumn(name = "machine_id")
+    @ManyToOne
     private VendingMachine vendingmachine;
 
-    public Product(VendingMachine machine, String name, int i, int i1) {
+    public Product(VendingMachine vendingMachine, String name, int cost, int quantity) {
+        this.name = name;
+        this.cost = cost;
+        this.vendingmachine = vendingMachine;
+        this.quantity = quantity;
     }
-
     public Product() {
 
     }
 
 
-    public VendingMachine getVendingMachineMachine() {
+  /*  public VendingMachine getVendingMachineMachine() {
         return vendingmachine;
     }
 
     public void setVendingMachineMachine(VendingMachine vendingMachine) {
         this.vendingmachine = vendingMachine;
     }
-
+*/
     public Long getId() {
         return id;
     }
