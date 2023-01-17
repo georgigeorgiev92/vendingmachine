@@ -27,7 +27,9 @@ public class InventoryService {
     public Product updateProduct(Product product) throws Exception {
         Product product1 = getProduct(product.getId());
         if(product1 == null)
-            throw new Exception("No such Beverage exist");
+
+Public
+       throw new Exception("No such Beverage exist");
         return productRepository.save(product);
     }
 

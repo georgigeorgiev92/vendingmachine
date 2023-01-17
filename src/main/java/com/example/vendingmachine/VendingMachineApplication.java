@@ -21,28 +21,4 @@ public class VendingMachineApplication {
         SpringApplication.run(VendingMachineApplication.class, args);
     }
 
-    @Bean
-    CommandLineRunner init(VendingMachineRepo vendingRepository,
-                           ProductRepo productRepository,
-                           CoinRepo coinRepository) {
-        return (evt) -> Arrays.asList(
-                        "Vending machine 1,Vending machine 2".split(","))
-                .forEach(
-                        a -> {
-                            // Create the new machine
-                            VendingMachine machine = vendingRepository.save(new VendingMachine(a, 0));
-
-                            // Add 2 default products
-                            productRepository.save(new Product(machine,
-                                    "Coca Cola", 120, 10));
-                            productRepository.save(new Product(machine,
-                                    "Sprite", 300, 5));
-
-                            // Add some cash float to the machine
-                            coinRepository.save(new Coin(machine, 50));
-                            coinRepository.save(new Coin(machine, 100));
-                            coinRepository.save(new Coin(machine, 20));
-                            coinRepository.save(new Coin(machine, 10));
-                        });
-    }
 }
