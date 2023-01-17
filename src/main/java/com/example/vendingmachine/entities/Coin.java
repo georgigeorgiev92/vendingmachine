@@ -35,7 +35,6 @@ public class Coin {
     }
 
     public Coin(){
-        //jpa only
     }
 
 }

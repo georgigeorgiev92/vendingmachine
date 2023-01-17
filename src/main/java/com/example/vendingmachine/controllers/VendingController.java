@@ -35,14 +35,12 @@ public class VendingController {
     }
 
 
-   // @RequestMapping(method = RequestMethod.GET)
     @GetMapping("/vendingmachine")
     List<VendingMachine> getMachine() {
         return this.vendingRepo.findAll();
     }
 
 
-    //@RequestMapping(method = RequestMethod.POST)
     @PostMapping("/vendingmachine")
     ResponseEntity<?> addMachine(@RequestBody VendingMachine input) {
 
@@ -106,7 +104,6 @@ public class VendingController {
         }
     }
     @GetMapping("/{vendingMachine}/products/{productId}")
-    //@RequestMapping(method = RequestMethod.GET, value = "/{vendingMachine}/products/{productId}")
     Product buyProduct(@PathVariable String vendingMachine, @PathVariable Long productId) {
 
         final Product[] soldProduct = new Product[1];
@@ -134,18 +131,15 @@ public class VendingController {
 
 
 
-    //@RequestMapping(method = RequestMethod.POST)
     @PostMapping ("/{vendingMachine}/coins")
-    Optional<?> addCoin(@PathVariable String machineId, @RequestBody Coin coin) {
+    Optional<?> addCoin(@PathVariable String vendingMachine, @RequestBody Coin coin) {
 
         return this.vendingRepo
-                .findByName(machineId)
+                .findByName(vendingMachine)
                 .map(machine -> {
                      boolean coinFound = false;
 
-
-                    // Else add the coin to the repository
-                    if (!coinFound && IntStream.of(coin.POSSIBLE_VALUES).anyMatch(x -> x == coin.value)) {
+                     if (!coinFound && IntStream.of(coin.POSSIBLE_VALUES).anyMatch(x -> x == coin.value)) {
                         this.coinRepo.saveAndFlush(new Coin(machine, coin.value));
                         coinFound = true;
                     }
@@ -156,18 +150,17 @@ public class VendingController {
 
                     this.vendingRepo.saveAndFlush(machine);
 
-                    return this.vendingRepo.findByName(machineId);
+                    return this.vendingRepo.findByName(vendingMachine);
                 });
     }
 
-   // @RequestMapping(method = RequestMethod.GET, value = "/refund")
     @GetMapping("/{vendingMachine}/coin/reset")
 
-    Coin reset(@PathVariable String machineId) {
+    Coin reset(@PathVariable String vendingMachine) {
 
         final int[] refundTotal = new int[1];
 
-        this.vendingRepo.findByName(machineId).map(machine -> {
+        this.vendingRepo.findByName(vendingMachine).map(machine -> {
             refundTotal[0] = machine.currentAmount;
             return refundTotal[0];
         });
@@ -175,7 +168,7 @@ public class VendingController {
         Coin refundCoin = new Coin();
 
         for (int value : Coin.POSSIBLE_VALUES) {
-            this.coinRepo.findByVendingmachine(machineId).forEach(coin -> {
+            this.coinRepo.findByVendingmachine(vendingMachine).forEach(coin -> {
                 if (value == coin.value && coin.value <= refundTotal[0]) {
                     this.coinRepo.saveAndFlush(coin);
                   //  refundCoin.add(new Coin(coin.value, (int) max_coins));
