@@ -1,7 +1,5 @@
 package com.example.vendingmachine.entities;
 
-import com.example.vendingmachine.entities.Coin;
-import com.example.vendingmachine.entities.Product;
 import jakarta.persistence.*;
 
 import java.util.HashSet;

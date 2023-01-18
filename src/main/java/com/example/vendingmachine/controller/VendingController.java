@@ -1,4 +1,4 @@
-package com.example.vendingmachine.controllers;
+package com.example.vendingmachine.controller;
 
 import com.example.vendingmachine.entities.Coin;
 import com.example.vendingmachine.entities.Product;
@@ -34,15 +34,15 @@ public class VendingController {
         this.coinRepo = coinRepo;
     }
 
-
+    //shows all vending machines
     @GetMapping("/vendingmachine")
     List<VendingMachine> getMachine() {
         return this.vendingRepo.findAll();
     }
 
-
+    //adds a vending machine
     @PostMapping("/vendingmachine")
-    ResponseEntity<?> addMachine(@RequestBody VendingMachine input) {
+    public ResponseEntity<?> addMachine(@RequestBody VendingMachine input) {
 
         VendingMachine result = this.vendingRepo.save(new VendingMachine(input.name, input.currentAmount));
 
@@ -54,14 +54,16 @@ public class VendingController {
 
     }
 
-
+    //shows all products in a vending machine
     @GetMapping("/{vendingMachineId}/products")
     Collection<Product> getAllProducts(@PathVariable String vendingMachineId) {
         //return this.productRepo.findByVendingmachine(vendingMachineId);
         return productRepo.findAll();
 
     }
-    @PostMapping("/{vendingMachine}/products")//@RequestMapping(method = RequestMethod.POST)
+
+    //adds a product to a vending machine
+    @PostMapping("/{vendingMachine}/products")
     ResponseEntity<?> addNewProduct(@PathVariable String vendingMachine, @RequestBody Product input) {
 
         return this.vendingRepo
@@ -79,12 +81,13 @@ public class VendingController {
 
     }
 
+    //updates the product inventory if needed
     @PutMapping("/{vendingMachine}/products/{id}")
     public ResponseEntity<Product> updateProductInventory(@PathVariable("id") long id, @RequestBody Product product) {
-        Optional<Product> tutorialData = productRepo.findById(id);
+        Optional<Product> productInvent = productRepo.findById(id);
 
-        if (tutorialData.isPresent()&& product.quantity<10)  {
-            Product _prod = tutorialData.get();
+        if (productInvent.isPresent() && product.quantity < 10) {
+            Product _prod = productInvent.get();
             _prod.setName(product.getName());
             _prod.setPrice(product.getPrice());
             _prod.setQuantity(product.getQuantity() + 1);
@@ -94,6 +97,7 @@ public class VendingController {
         }
     }
 
+    //deletes a product from the inventory
     @DeleteMapping("/{vendingMachine}/products/{id}")
     public ResponseEntity<HttpStatus> deleteProduct(@PathVariable("id") long id) {
         try {
@@ -103,8 +107,47 @@ public class VendingController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    //adds a coin to the vendingmachine
+    @PutMapping("/{vendingMachine}/coins/{id}")
+    public ResponseEntity<Coin> addNewCoin(@PathVariable("id") long id, @RequestBody Coin coin) {
+        Optional<Coin> coinEvent = coinRepo.findById(id);
+
+        if (coinEvent.isPresent() && IntStream.of(coin.POSSIBLE_VALUES).anyMatch(x -> x == coin.value)){
+            Coin _co = coinEvent.get();
+            _co.setValue(coin.getValue());
+            return new ResponseEntity<>(coinRepo.save(_co), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+    //obsolete
+    @PostMapping ("/{vendingMachine}/coins")
+    Optional<?> addCoin(@PathVariable String vendingMachine, @RequestBody Coin coin) {
+
+        return this.vendingRepo
+                .findByName(vendingMachine)
+                .map(machine -> {
+                    boolean coinFound = false;
+
+                    if (!coinFound && IntStream.of(coin.POSSIBLE_VALUES).anyMatch(x -> x == coin.value)) {
+                        this.coinRepo.saveAndFlush(new Coin(machine, coin.value));
+                        coinFound = true;
+                    }
+
+                    if (coinFound) {
+                        machine.currentAmount += coin.value;
+                    }
+
+                    this.vendingRepo.saveAndFlush(machine);
+
+                    return this.vendingRepo.findByName(vendingMachine);
+                });
+    }
+
+    //buy a product and decrement the inventory by 1
     @GetMapping("/{vendingMachine}/products/{productId}")
-    Product buyProduct(@PathVariable String vendingMachine, @PathVariable Long productId) {
+    public Product buyProduct(@PathVariable String vendingMachine, @PathVariable Long productId) {
 
         final Product[] soldProduct = new Product[1];
 
@@ -129,54 +172,39 @@ public class VendingController {
         return soldProduct[0];
     }
 
-
-
-    @PostMapping ("/{vendingMachine}/coins")
-    Optional<?> addCoin(@PathVariable String vendingMachine, @RequestBody Coin coin) {
-
-        return this.vendingRepo
-                .findByName(vendingMachine)
-                .map(machine -> {
-                     boolean coinFound = false;
-
-                     if (!coinFound && IntStream.of(coin.POSSIBLE_VALUES).anyMatch(x -> x == coin.value)) {
-                        this.coinRepo.saveAndFlush(new Coin(machine, coin.value));
-                        coinFound = true;
-                    }
-
-                    if (coinFound) {
-                        machine.currentAmount += coin.value;
-                    }
-
-                    this.vendingRepo.saveAndFlush(machine);
-
-                    return this.vendingRepo.findByName(vendingMachine);
-                });
+    //refunds and deletes coin from vending machine
+    @DeleteMapping("/{vendingMachine}/coins/{id}")
+    public ResponseEntity<HttpStatus> refund(@PathVariable("id") long id) {
+        try {
+            coinRepo.deleteById(id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
-    @GetMapping("/{vendingMachine}/coin/reset")
+    //obsolete
+    @GetMapping("/{vendingMachine}/coins/reset")
+    List<Coin>  reset(@PathVariable String vendingMachine) {
 
-    Coin reset(@PathVariable String vendingMachine) {
-
-        final int[] refundTotal = new int[1];
+        final int[] refunds = new int[1];
 
         this.vendingRepo.findByName(vendingMachine).map(machine -> {
-            refundTotal[0] = machine.currentAmount;
-            return refundTotal[0];
+            refunds[0] = machine.currentAmount;
+            return refunds[0];
         });
 
-        Coin refundCoin = new Coin();
+        List<Coin> refundCoins = new ArrayList<>();
 
         for (int value : Coin.POSSIBLE_VALUES) {
             this.coinRepo.findByVendingmachine(vendingMachine).forEach(coin -> {
-                if (value == coin.value && coin.value <= refundTotal[0]) {
+                if (value == coin.value && coin.value <= refunds[0]) {
                     this.coinRepo.saveAndFlush(coin);
-                  //  refundCoin.add(new Coin(coin.value, (int) max_coins));
-                  //  refundTotal[0] -= (int) max_coins * coin.value;
+                    refundCoins.add(new Coin(coin.value));
                 }
             });
         }
 
-        return refundCoin;
+        return refundCoins;
     }
 }

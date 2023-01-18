@@ -7,6 +7,30 @@ import jakarta.persistence.*;
 public class Coin {
 
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public int getValue() {
+        return value;
+    }
+
+    public void setValue(int value) {
+        this.value = value;
+    }
+
+    public VendingMachine getVendingmachine() {
+        return vendingmachine;
+    }
+
+    public void setVendingmachine(VendingMachine vendingmachine) {
+        this.vendingmachine = vendingmachine;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "coin_id", nullable = false)
