@@ -6,13 +6,8 @@ import com.example.vendingmachine.entities.VendingMachine;
 import com.example.vendingmachine.repos.CoinRepo;
 import com.example.vendingmachine.repos.ProductRepo;
 import com.example.vendingmachine.repos.VendingMachineRepo;
-import com.example.vendingmachine.controller.*;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -35,8 +30,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @EnableAutoConfiguration
 class VendingmachineApplicationTests {
 
-    @PersistenceContext
-    private EntityManager em;
+/*    @PersistenceContext
+    private EntityManager em;*/
     @Autowired
     private final ProductRepo productRepo;
 
@@ -48,12 +43,12 @@ class VendingmachineApplicationTests {
     @MockBean
     private VendingController controller;
 
-    @Autowired
     VendingmachineApplicationTests(ProductRepo productRepo, VendingMachineRepo vendingRepo, CoinRepo coinRepo) {
         this.productRepo = productRepo;
         this.vendingRepo = vendingRepo;
         this.coinRepo = coinRepo;
     }
+
 
     @Test
     void contextLoads() {
